@@ -1,5 +1,6 @@
 package ru.hh.school.service;
 
+import ru.hh.school.entity.Vacancy;
 import ru.hh.school.util.TransactionHelper;
 import ru.hh.school.dao.EmployerDao;
 import ru.hh.school.dao.GenericDao;
@@ -66,9 +67,12 @@ public class EmployerService {
     // про состояния: https://vladmihalcea.com/a-beginners-guide-to-jpa-hibernate-entity-state-transitions/
     // про возврат в managed состояние: https://vladmihalcea.com/jpa-persist-and-merge
 
+    // не понял, зачем здесь была транзакция? Ведь нет операций с базой
+    employer.setBlockTime(LocalDateTime.now());
+    employer.getVacancies().forEach(v -> v.setArchivingTime(LocalDateTime.now()));
+
     transactionHelper.inTransaction(() -> {
-      employer.setBlockTime(LocalDateTime.now());
-      employer.getVacancies().forEach(v -> v.setArchivingTime(LocalDateTime.now()));
+      employerDao.update(employer);
     });
   }
 
